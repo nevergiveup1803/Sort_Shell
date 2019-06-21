@@ -45,7 +45,7 @@ namespace Sort_Shell
             listBox1.Items.Clear();
             Random r = new Random();
             //случайно выберем длину 
-            int n = r.Next(100,50000);
+            int n = r.Next(1000,50000);
             mas = new int[n];
             for (int i = 0; i < mas.Length; i++)
             {
@@ -100,9 +100,10 @@ namespace Sort_Shell
 
             timer.Stop();
             
-            //TimeSpan time_ms = timer.Elapsed;
+          
             time_ms = timer.ElapsedMilliseconds;
-            //string elapsedTime = time_ms.ToString();
+            
+
 
             //отображаем результаты сортировки
             listBox2.Items.Clear();
@@ -142,7 +143,7 @@ namespace Sort_Shell
                 {
                     StreamReader sr = new StreamReader(f);
                     string str = sr.ReadLine();
-                    //удаляем лишние пробелы (с помощью метода Trim() и регулярного выражения)
+                    //удаляем лишние пробелы (с помощью метода Trim() и регулярного выражения
                     str = str.Trim();
                     str = Regex.Replace(str, "[ ]+", " ");
 
@@ -193,7 +194,7 @@ namespace Sort_Shell
             label3.Text = "Введите элементы массива через пробел и нажмите на кнопку Готово";
             label3.Visible = true;
             textBox1.Visible = true;
-            textBox1.Width = this.ClientSize.Width - 30;
+           // textBox1.Width = this.ClientSize.Width - 30;
             textBox1.Clear();
             button2.Visible = true;
         }
@@ -257,22 +258,24 @@ namespace Sort_Shell
         {
             groupBox1.Height = this.ClientSize.Height - 30;
             listBox1.Height = this.ClientSize.Height - 60;
-
             groupBox2.Height = this.ClientSize.Height - 30;
             listBox2.Height = this.ClientSize.Height - 60;
-
             textBox1.Width = this.ClientSize.Width - 30;
         }
 
         private void сохранитьСтатистикуToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (time_ms != -1)
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                StreamWriter sr = new StreamWriter("statistic.txt", true);
-                sr.WriteLine(mas.Length.ToString() + "\t"+time_ms.ToString()+" мс");
-                sr.Close();
-                MessageBox.Show("Статистика сохранена");
-                time_ms = -1;
+                if (time_ms != -1)
+                {
+                    string filename = saveFileDialog1.FileName;
+                    StreamWriter sr = new StreamWriter(filename, true);
+                    sr.WriteLine(mas.Length.ToString() + "\t" + time_ms.ToString() + " мс");
+                    MessageBox.Show("Статистика сохранена");
+                    sr.Close();
+                    time_ms = -1;
+                }
             }
         }
 
@@ -281,7 +284,6 @@ namespace Sort_Shell
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 string filename = saveFileDialog1.FileName;
-
                 StreamWriter sr = new StreamWriter(filename, false);
                 // сохраняем текст в файл
                 for (int i = 0; i < mas.Length; i++)
@@ -295,32 +297,40 @@ namespace Sort_Shell
 
         private void диаграммаToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string name = "statistic.txt";
-
-            FileStream f = File.Open(name, FileMode.Open, FileAccess.Read);
-
-            if (f != null)
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                StreamReader sr = new StreamReader(f);
-                List<int> masX = new List<int>();
-                List<int> masY = new List<int>();
+                string name = openFileDialog1.FileName;
 
-                string str = sr.ReadLine();
-                              
-                while (str != null)
+                FileStream f = File.Open(name, FileMode.Open, FileAccess.Read);
+
+                if (f != null)
                 {
+                    StreamReader sr = new StreamReader(f);
+                    List<int> masX = new List<int>();
+                    List<int> masY = new List<int>();
 
-                    string[] s = str.Split();
-                    masX.Add(int.Parse(s[0]));
-                    masY.Add(int.Parse(s[1]));
-                    str = sr.ReadLine();
+                    string str = sr.ReadLine();
+
+                    while (str != null)
+                    {
+
+                        string[] s = str.Split();
+                        masX.Add(int.Parse(s[0]));
+                        masY.Add(int.Parse(s[1]));
+                        str = sr.ReadLine();
+                    }
+                    this.chart1.Series["Series1"].Points.DataBindXY(masX, masY);
+                    chart1.Visible = true;
+                    sr.Close();
                 }
-                this.chart1.Series["Series1"].Points.DataBindXY(masX, masY);
-                chart1.Visible = true;
-                sr.Close();
+                f.Close();
+
             }
-            f.Close();
-            
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
